@@ -8,12 +8,12 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 @Configuration
 @EnableWebSocket //* Enables websocket message handling
-class WebsocketConfig: WebSocketConfigurer {
+class WebsocketConfig(private val webSocketHandler: WebSocketHandler): WebSocketConfigurer {
 
     //* Define Endpoint for websocket connection (/ws)
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         //* Testing purpose -> allows all connection from any origins (CORS)
-        registry.addHandler(WebSocketHandler(), "/ws").setAllowedOrigins("*")
+        registry.addHandler(webSocketHandler, "/ws").setAllowedOrigins("*")
     }
 
 }
