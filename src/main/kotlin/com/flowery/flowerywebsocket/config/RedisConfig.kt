@@ -13,7 +13,7 @@ class RedisConfig {
 
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
-        return LettuceConnectionFactory("localhost", 6379) // local에서 애플리케이션 실행 시
+        return LettuceConnectionFactory("localhost", 6380) // local에서 애플리케이션 실행 시
         //return LettuceConnectionFactory("wsredis", 6379) // wsredis: Docker Compose 네트워크에서 컨테이너 이름
     }
     @Bean
