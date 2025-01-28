@@ -2,6 +2,7 @@ package com.flowery.flowerywebsocket.lib
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.flowery.flowerywebsocket.dto.Message
+import com.flowery.flowerywebsocket.logger.AppLogger
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
@@ -12,6 +13,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.nio.ByteBuffer
 import java.util.concurrent.ConcurrentHashMap
 
+
+val fbLogger = AppLogger(appName = "flowery-ws-server")
 
 //* Test Data:{"type":"MESSAGE","senderId":"a","receiverId":"b","payload":"Hello, how are you?"}
 @Component
@@ -29,6 +32,7 @@ class WebSocketHandler(private val redisTemplate: RedisTemplate<String, String>)
         hub.addSession(userId, session)
         //buffers[session.id] = MessageBuffer()
         logger.info("User $userId connected with session ${session.id}")
+        fbLogger.info("User $userId connected with session ${session.id}")
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
@@ -37,6 +41,7 @@ class WebSocketHandler(private val redisTemplate: RedisTemplate<String, String>)
         //buffers[session.id]?.purge()
         //buffers.remove(session.id)
         logger.info("User $userId disconnected: $status")
+        fbLogger.info("User $userId disconnected: $status")
     }
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {

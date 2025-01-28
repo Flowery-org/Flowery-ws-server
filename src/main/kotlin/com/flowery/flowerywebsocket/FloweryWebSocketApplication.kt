@@ -7,5 +7,6 @@ import org.springframework.boot.runApplication
 class FloweryWebSocketApplication
 
 fun main(args: Array<String>) {
+
     runApplication<FloweryWebSocketApplication>(*args)
 }
