@@ -12,8 +12,8 @@ import java.nio.ByteBuffer
 
 @Component
 class WebSocketHandler(
-    private val hub: ConnectionHub,
-    private val messageBuffer: MessageBuffer
+        private val hub: ConnectionHub,
+        private val messageBuffer: MessageBuffer
 ) : TextWebSocketHandler() {
     private val logger = LoggerFactory.getLogger(WebSocketHandler::class.java)
     private val mapper = jacksonObjectMapper()
@@ -40,7 +40,7 @@ class WebSocketHandler(
             if (recvSession != null && recvSession.isOpen) {
                 messageBuffer.write(ByteBuffer.wrap(message.payload.toByteArray()), recvSession.id)
                 messageBuffer.process(recvSession.id)
-                
+
                 var payload = messageBuffer.read(recvSession.id)
                 while (payload != null) {
                     recvSession.sendMessage(TextMessage(String(payload.array())))

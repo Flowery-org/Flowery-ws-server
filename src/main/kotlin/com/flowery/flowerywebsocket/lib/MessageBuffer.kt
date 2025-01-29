@@ -9,7 +9,7 @@ import java.nio.ByteBuffer
 
 @Component
 class MessageBuffer(
-    private val rabbitTemplate: RabbitTemplate
+        private val rabbitTemplate: RabbitTemplate
 ) {
     private val exchange = "websocket.exchange"
     private val writeRoutingKey = "write"
@@ -21,7 +21,7 @@ class MessageBuffer(
                 headers["sessionId"] = sessionId
                 contentType = MessageProperties.CONTENT_TYPE_BYTES
             }
-            
+
             val message = Message(payload.array(), messageProperties)
             rabbitTemplate.send(exchange, writeRoutingKey, message)
             logger.debug("Message written to queue for session: $sessionId")
