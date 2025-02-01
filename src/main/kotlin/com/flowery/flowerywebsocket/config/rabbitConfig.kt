@@ -45,6 +45,7 @@ class RabbitConfig {
     }
 
     fun createQueueForSession(sessionId: String): Queue {
+        // [INFO] RabbitMQ 큐 생성 (event: rabbitQueue_created)
         return QueueBuilder.durable("${sessionId}.queue")
                 .withArgument("x-dead-letter-exchange", "websocket.dlx")
                 .withArgument("x-dead-letter-routing-key", "websocket.dead")

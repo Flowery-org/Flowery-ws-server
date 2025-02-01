@@ -22,6 +22,8 @@ class WebSocketHandler(
         val userId = session.uri?.query?.split("=")?.get(1) ?: "unknown"
         session.attributes["userId"] = userId
         hub.addSession(userId, session)
+
+        // [INFO] WebSocket 연결 시작 (event: websocket_connection)
         logger.info("User $userId connected with session ${session.id}")
     }
 
@@ -29,6 +31,8 @@ class WebSocketHandler(
         val userId = session.attributes["userId"] as String
         hub.removeSession(session)
         messageBuffer.purge(session.id)
+
+        // [INFO] WebSocket 연결 종료 (event: websocket_disconnection)
         logger.info("User $userId disconnected: $status")
     }
 
@@ -36,6 +40,7 @@ class WebSocketHandler(
         try {
             val msgData = mapper.readValue(message.payload, Message::class.java)
             val recvSession = hub.getSession(msgData.receiverId)
+            // [INFO] WebSocket 메세지 수신 (event: ws_message_received)
 
             if (recvSession != null && recvSession.isOpen) {
                 messageBuffer.write(ByteBuffer.wrap(message.payload.toByteArray()), recvSession.id)
@@ -44,10 +49,12 @@ class WebSocketHandler(
                 var payload = messageBuffer.read(recvSession.id)
                 while (payload != null) {
                     recvSession.sendMessage(TextMessage(String(payload.array())))
+                    // [INFO] WebSocket 메세지 전송(event: ws_message_sent)
                     payload = messageBuffer.read(recvSession.id)
                 }
             }
         } catch (e: Exception) {
+            // [ERROR] 메세지 처리 중 오류 발생 (event: ws_message_processing_error)
             logger.error("Error handling message", e)
         }
     }
