@@ -46,26 +46,30 @@ class WebSocketHandler(private val redisTemplate: RedisTemplate<String, String>)
     }
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
-        val msgData = mapper.readValue(message.payload, Message::class.java)
-        //redis에 메시지 저장
-        // [INFO] WebSocket 메세지 수신 (event: ws_message_received)
+        try{
+            val msgData = mapper.readValue(message.payload, Message::class.java)
+            //redis에 메시지 저장
+            // [INFO] WebSocket 메세지 수신 (event: ws_message_received)
 
-        val msgKey = "messages: ${msgData.receiverId}"
-        logger.info("Storing message in Redis for key: $msgKey, value: $msgData")
-        redisTemplate.opsForList().leftPush(msgKey, message.payload)
-        logger.info("Message stored in Redis for key: messages:${msgData.receiverId}")
+            val msgKey = "messages: ${msgData.receiverId}"
+            logger.info("Storing message in Redis for key: $msgKey, value: $msgData")
+            redisTemplate.opsForList().leftPush(msgKey, message.payload)
+            logger.info("Message stored in Redis for key: messages:${msgData.receiverId}")
 
-        val recvSession = hub.getSession(msgData.receiverId)
-        if(recvSession != null && recvSession.isOpen) {
-            val storedMessage = redisTemplate.opsForList().rightPop(msgKey)
-            //val messageToSend = redisTemplate.opsForList().index(msgKey, -1) // 데이터 삭제 없이 가져오기
-            // [INFO] WebSocket 메세지 전송(event: ws_message_sent)
+            val recvSession = hub.getSession(msgData.receiverId)
+            if(recvSession != null && recvSession.isOpen) {
+                val storedMessage = redisTemplate.opsForList().rightPop(msgKey)
+                //val messageToSend = redisTemplate.opsForList().index(msgKey, -1) // 데이터 삭제 없이 가져오기
+                // [INFO] WebSocket 메세지 전송(event: ws_message_sent)
 
-            storedMessage?.let {
-                val messageToSend = mapper.readValue(it, Message::class.java) // JSON -> Message 객체 변환
-                recvSession.sendMessage(TextMessage(mapper.writeValueAsString(messageToSend)))
-                logger.info("Message sent to ${msgData.receiverId}: $messageToSend")
+                storedMessage?.let {
+                    val messageToSend = mapper.readValue(it, Message::class.java) // JSON -> Message 객체 변환
+                    recvSession.sendMessage(TextMessage(mapper.writeValueAsString(messageToSend)))
+                    logger.info("Message sent to ${msgData.receiverId}: $messageToSend")
+                }
             }
+        }catch (e: Exception){
+            // TODO: Error
         }
 
     }
